@@ -136,38 +136,47 @@ class _VideoFeedSection extends StatelessWidget {
           ),
         ),
 
-        // Fire alert overlay
+        // Fire nature overlay badge (Static / Dynamic)
         if (isFireDetected)
           Positioned(
             top: 12,
             right: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.danger,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.danger.withOpacity(0.5),
-                    blurRadius: 12,
-                    spreadRadius: 2,
-                  )
-                ],
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 14),
-                  SizedBox(width: 4),
-                  Text('FIRE DETECTED',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                      )),
-                ],
-              ),
+            child: BlocBuilder<LiveViewBloc, LiveViewState>(
+              builder: (context, state) {
+                final nature = state is LiveViewUpdated
+                    ? state.result.fireNature
+                    : null;
+                final isDynamic = nature == 'dynamic_fire';
+                final label = nature == 'static_fire'
+                    ? 'STATIC FIRE 🕯️'
+                    : 'DYNAMIC FIRE 🔥';
+                final badgeColor =
+                    isDynamic ? AppTheme.danger : Colors.orange;
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: badgeColor,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: badgeColor.withOpacity(0.5),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      )
+                    ],
+                  ),
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
 
@@ -336,6 +345,15 @@ class _ResultPanel extends StatelessWidget {
 
             const SizedBox(height: 10),
 
+            // Fire Nature card (Static / Dynamic)
+            _FireNatureCard(
+              nature: result.fireNature,
+              natureLabel: result.fireNatureLabel,
+              fireDetected: result.fireDetected,
+            ),
+
+            const SizedBox(height: 10),
+
             // Direction card
             _DirectionCard(direction: direction),
           ],
@@ -401,6 +419,82 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(sub,
               style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FireNatureCard extends StatelessWidget {
+  final String? nature;
+  final String natureLabel;
+  final bool fireDetected;
+
+  const _FireNatureCard({
+    required this.nature,
+    required this.natureLabel,
+    required this.fireDetected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!fireDetected) return const SizedBox.shrink();
+
+    final isDynamic = nature == 'dynamic_fire';
+    final color = isDynamic ? AppTheme.danger : Colors.orange;
+    final icon = isDynamic
+        ? Icons.local_fire_department_rounded
+        : Icons.whatshot_outlined;
+    final subLabel = isDynamic
+        ? 'Spreading or growing — hazardous'
+        : 'Contained, stable flame — not hazardous';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3), width: 0.8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Fire Nature',
+                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  natureLabel,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subLabel,
+                  style: const TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

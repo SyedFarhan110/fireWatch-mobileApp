@@ -293,9 +293,25 @@ class _LogRow extends StatelessWidget {
       ),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          '${result.trend}  •  ${result.direction.direction}  •  ${result.intensity.coveragePct}% coverage',
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (fire)
+              Text(
+                result.fireNatureLabel,
+                style: TextStyle(
+                  color: result.fireNature == 'dynamic_fire'
+                      ? AppTheme.danger
+                      : Colors.orange,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            Text(
+              '${result.trend}  •  ${result.direction.direction}  •  ${result.intensity.coveragePct}% coverage',
+              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+            ),
+          ],
         ),
       ),
       trailing: Text(

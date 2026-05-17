@@ -58,6 +58,8 @@ class CameraResult {
   final int frame;
   final String camId;
   final bool fireDetected;
+  final String? fireNature;       // "static_fire" | "dynamic_fire" | null
+  final String fireNatureLabel;   // Human-readable e.g. "Static Fire 🕯️ (Non-Hazardous)"
   final IntensityData intensity;
   final String trend;
   final DirectionData direction;
@@ -68,6 +70,8 @@ class CameraResult {
     required this.frame,
     required this.camId,
     required this.fireDetected,
+    this.fireNature,
+    required this.fireNatureLabel,
     required this.intensity,
     required this.trend,
     required this.direction,
@@ -79,6 +83,8 @@ class CameraResult {
     frame: json['frame'] ?? 0,
     camId: json['cam_id'] ?? '',
     fireDetected: json['fire_detected'] ?? false,
+    fireNature: json['fire_nature'] as String?,
+    fireNatureLabel: json['fire_nature_label'] ?? 'No Fire ✅',
     intensity: IntensityData.fromJson(json['intensity'] ?? {}),
     trend: json['trend'] ?? 'N/A',
     direction: DirectionData.fromJson(json['direction'] ?? {}),
@@ -137,12 +143,16 @@ class DirectionData {
 
 class FireSummary {
   final bool fireDetected;
+  final String? fireNature;       // "static_fire" | "dynamic_fire" | null
+  final String fireNatureLabel;   // e.g. "Static Fire 🕯️ (Non-Hazardous)"
   final String verdict;
   final dynamic intensity;
   final String trend;
 
   const FireSummary({
     required this.fireDetected,
+    this.fireNature,
+    required this.fireNatureLabel,
     required this.verdict,
     required this.intensity,
     required this.trend,
@@ -150,6 +160,8 @@ class FireSummary {
 
   factory FireSummary.fromJson(Map<String, dynamic> json) => FireSummary(
     fireDetected: json['fire_detected'] ?? false,
+    fireNature: json['fire_nature'] as String?,
+    fireNatureLabel: json['fire_nature_label'] ?? 'No Fire ✅',
     verdict: json['verdict'] ?? 'N/A',
     intensity: json['intensity'],
     trend: json['trend'] ?? 'N/A',
